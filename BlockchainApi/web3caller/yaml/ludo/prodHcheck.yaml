@@ -1,0 +1,24 @@
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: ludo-hcheck-test
+  namespace: prod
+spec:
+  default:
+    checkIntervalSec: 30
+    timeoutSec: 18
+    healthyThreshold: 1
+    unhealthyThreshold: 1
+    logConfig:
+      enabled: false
+    config:
+      type: HTTP
+      httpHealthCheck:
+        portSpecification: USE_FIXED_PORT
+        port: 8080
+        requestPath: /BlockChainApi/hCheck
+        proxyHeader: NONE
+  targetRef:
+    group: ""
+    kind: Service
+    name: ludo-web3caller-svc

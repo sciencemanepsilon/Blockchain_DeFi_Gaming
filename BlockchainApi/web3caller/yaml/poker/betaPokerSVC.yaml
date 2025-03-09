@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: beta
+  name: beta-web3caller-svc
+spec:
+  ports:
+  - port: 9003
+    targetPort: 8080
+  selector:
+    POD_LABEL: beta-web3caller-pod-label
+  type: ClusterIP
