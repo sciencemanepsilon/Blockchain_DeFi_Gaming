@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: beta
+  name: task-caller
+spec:
+  selector:
+    matchLabels:
+      POD_LABEL: task-caller-pod-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        POD_LABEL: task-caller-pod-label
+      namespace: beta
+    spec:
+      serviceAccountName: task-scheduler
+      containers:
+      - name: task-caller-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/cloud-resources:TaskCallerApi-OnRoomCreateMassFcm3
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "1m"
+            memory: "60Mi"
+        envFrom:
+          - configMapRef:
+              name: beta-config

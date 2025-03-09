@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: beta
+  name: task-caller-svc
+spec:
+  ports:
+  - port: 84
+    targetPort: 8080
+  selector:
+    POD_LABEL: task-caller-pod-label
+  type: ClusterIP
