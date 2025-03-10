@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: beta
+  name: connect-wallet
+spec:
+  selector:
+    matchLabels:
+      POD_LABEL: connect-wallet-pod-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        POD_LABEL: connect-wallet-pod-label
+      namespace: beta
+    spec:
+      serviceAccountName: beta-fire-w
+      containers:
+      - name: connect-wallet-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/reg-login:ConnWallet-AddEmail-FcmSwitchDevice2
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "1m"
+            memory: "70Mi"
+        envFrom:
+          - configMapRef:
+              name: beta-config

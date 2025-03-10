@@ -1,0 +1,13 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: login-hpa
+  namespace: prod
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: login-pods
+  minReplicas: 1
+  maxReplicas: 55
+  targetCPUUtilizationPercentage: 80
