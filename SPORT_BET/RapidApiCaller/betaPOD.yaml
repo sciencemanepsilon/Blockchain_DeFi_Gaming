@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: beta
+  name: sport-rapid-api-caller
+spec:
+  selector:
+    matchLabels:
+      SVC_LABEL: sport-rapid-api-pod-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        SVC_LABEL: sport-rapid-api-pod-label
+      namespace: beta
+    spec:
+      serviceAccountName: zero-perm
+      containers:
+      - name: sport-rapid-api-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/sportsbetapi:RapidApiCaller-InterReqTime022-CricketNew
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "6Mi"
+        envFrom:
+          - configMapRef:
+              name: beta-config
+          - secretRef:
+              name: beta-secrets
