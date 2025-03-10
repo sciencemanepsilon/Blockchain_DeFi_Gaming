@@ -1,0 +1,21 @@
+apiVersion: networking.gke.io/v1
+kind: GCPBackendPolicy
+metadata:
+  name: settings-nickanme-backendpolicy
+  namespace: prod
+spec:
+  default:
+    logging:
+      enabled: false
+      #sampleRate: 0
+    connectionDraining:
+      drainingTimeoutSec: 11
+    sessionAffinity:
+      type: CLIENT_IP
+    timeoutSec: 18
+    #maxRatePerEndpoint: 15
+    #securityPolicy: example-security-policy
+  targetRef:
+    group: ""
+    kind: Service
+    name: settings-nickname-svc

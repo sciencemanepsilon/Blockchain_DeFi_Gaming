@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: prod
+  name: settings-transhistory
+spec:
+  selector:
+    matchLabels:
+      POD_LABEL: settings-transhistory-pod-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        POD_LABEL: settings-transhistory-pod-label
+      namespace: prod
+    spec:
+      serviceAccountName: fire-r-auth-r
+      containers:
+      - name: settings-transhistory-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/settings:TransHistory-GmailReward2
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "26m"
+            memory: "70Mi"
+        envFrom:
+          - configMapRef:
+              name: prod-config
