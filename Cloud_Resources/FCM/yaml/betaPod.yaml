@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: beta
+  name: fcm-server
+spec:
+  selector:
+    matchLabels:
+      POD_LABEL: fcm-pod-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        POD_LABEL: fcm-pod-label
+      namespace: beta
+    spec:
+      serviceAccountName: fire-w-fcm-send
+      containers:
+      - name: fcm-server-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/cloud-resources:FCM-Server7
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "1m"
+            memory: "60Mi"
+        envFrom:
+          - configMapRef:
+              name: beta-config
