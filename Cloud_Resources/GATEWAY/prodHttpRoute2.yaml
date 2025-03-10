@@ -1,0 +1,67 @@
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: prod-routes2
+  namespace: prod
+spec:
+  parentRefs:
+  - name: https-gateway
+    namespace: default
+    sectionName: https-listener-name
+  rules:
+  - matches:
+    - path:
+        value: /TransHist/prod
+        type: Exact
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: settings-transhistory-svc
+      port: 9015
+  - matches:
+    - path:
+        value: /SportsBet/createTicketValidate/prod/
+        type: PathPrefix
+    backendRefs:
+    - name: sport-bets-svc
+      port: 9018
+  - matches:
+    - path:
+        value: /SportsBet/closeBetStatus/prod
+        type: PathPrefix
+    backendRefs:
+    - name: sport-bets-svc
+      port: 9018
+  - matches:
+    - path:
+        value: /SportsBet/calculateResult/prod
+        type: PathPrefix
+    backendRefs:
+    - name: sport-bets-svc
+      port: 9018
+  - matches:
+    - path:
+        value: /SportRpsLimiter/prod
+        type: PathPrefix
+    backendRefs:
+    - name: rapid-api-caller-svc
+      port: 89
+  # Create Table Child Fcm Caller
+  - matches:
+    - path:
+        value: /MassPush/prod
+        type: Exact
+    backendRefs:
+    - name: crtab-child-fcm-caller-svc
+      port: 9098
+  - matches:
+    - path:
+        value: /CrudGameInvites/prod
+        type: Exact
+    backendRefs:
+    - name: crtab-child-fcm-caller-svc
+      port: 9098

@@ -1,0 +1,215 @@
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: prod-routes1
+  namespace: prod
+spec:
+  parentRefs:
+  - name: https-gateway
+    namespace: default
+    sectionName: https-listener-name
+  rules:
+  - matches:
+    - path:
+        value: /UploadImage/prod
+        type: Exact
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Ori
+              value: '{origin_request_header}'
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: upload-image-svc
+      port: 9012
+  - matches:
+    - path:
+        value: /ChangeNick/prod
+        type: PathPrefix
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Ori
+              value: '{origin_request_header}'
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: settings-nickname-svc
+      port: 9011
+  - matches:
+    - path:
+        value: /SetInGame/prod
+        type: Exact
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Ori
+              value: '{origin_request_header}'
+    backendRefs:
+    - name: set-ingame-svc
+      port: 9003
+  - matches:
+    - path:
+        value: /CreateTable/onCreateGameReject/prod
+        type: Exact
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Ori
+              value: '{origin_request_header}'
+    backendRefs:
+    - name: create-table-svc
+      port: 9007
+  - matches:
+    - path:
+        value: /CreateTable/prod
+        type: Exact
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Ori
+              value: '{origin_request_header}'
+    backendRefs:
+    - name: create-table-svc
+      port: 9007
+  - matches:
+    - path:
+        value: /GetDoc/prod
+        type: Exact
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Country
+              value: '{client_region}'
+            - name: LB-City
+              value: '{client_city}'
+            - name: LB-Ori
+              value: '{origin_request_header}'
+            - name: LB-IP
+              value: '{client_ip_address}'
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: get-doc-svc
+      port: 9006
+  - matches:
+    - path:
+        value: /GetDoc/prod/FcmProxy/
+        type: PathPrefix
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Ori
+              value: '{origin_request_header}'
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: get-doc-svc
+      port: 9006
+  - matches:
+    - path:
+        value: /CookieSetter/prod
+        type: PathPrefix
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Ori
+              value: '{origin_request_header}'
+            - name: LB-IP
+              value: '{client_ip_address}'
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: cookie-setter-svc
+      port: 9005
+  - matches:
+    - path:
+        value: /ConnectWallet/prod
+        type: PathPrefix
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Country
+              value: '{client_region}'
+            - name: LB-City
+              value: '{client_city}'
+            - name: LB-Ori
+              value: '{origin_request_header}'
+            - name: LB-IP
+              value: '{client_ip_address}'
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: connect-wallet-svc
+      port: 9004
+  - matches:
+    - path:
+        value: /AddEmail/prod
+        type: PathPrefix
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Ori
+              value: '{origin_request_header}'
+            - name: LB-IP
+              value: '{client_ip_address}'
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: connect-wallet-svc
+      port: 9004
+  # poker Server Paths
+  - matches:
+    - path:
+        value: /prod/socket.io
+        type: PathPrefix
+    backendRefs:
+    - name: poker-server-svc
+      port: 9002
+  - matches:
+    - path:
+        value: /PokerServer/checkTableExist/prod/
+        type: PathPrefix
+    backendRefs:
+    - name: poker-server-svc 
+      port: 9002
+  - matches:
+    - path:
+        value: /PokerServer/clearTable/prod/
+        type: PathPrefix
+    backendRefs:
+    - name: poker-server-svc 
+      port: 9002
+  - matches:
+    - path:
+        value: /PokerServer/leaveGame/prod/
+        type: PathPrefix
+    backendRefs:
+    - name: poker-server-svc 
+      port: 9002
+  - matches:
+    - path:
+        value: /PokerServer/checkUserInGame/prod/
+        type: PathPrefix
+    backendRefs:
+    - name: poker-server-svc 
+      port: 9002
+  # other Paths
+  - matches:
+    - path:
+        value: /SearchUsers/prod
+        type: PathPrefix
+    backendRefs:
+    - name: search-users-svc
+      port: 9001
