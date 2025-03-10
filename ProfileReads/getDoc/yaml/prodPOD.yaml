@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: prod
+  name: get-doc
+spec:
+  selector:
+    matchLabels:
+      POD_LABEL: get-doc-pod-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        POD_LABEL: get-doc-pod-label
+      namespace: prod
+    spec:
+      serviceAccountName: fire-r-auth-r
+      containers:
+      - name: get-doc-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/db-ops:GetDoc-TTLCache-FcmProxy5
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "52m"
+            memory: "90Mi"
+        envFrom:
+          - configMapRef:
+              name: prod-config
