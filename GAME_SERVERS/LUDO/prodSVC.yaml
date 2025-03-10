@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: prod
+  name: ludo-server-svc
+  annotations:
+    networking.gke.io/max-rate-per-endpoint: "15"
+spec:
+  ports:
+  - port: 9016
+    targetPort: 3001
+    name: http
+  selector:
+    POD_LABEL: ludo-server-pod-label
+  type: ClusterIP

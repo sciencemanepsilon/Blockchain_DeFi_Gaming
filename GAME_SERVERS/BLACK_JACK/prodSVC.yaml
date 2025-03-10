@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: prod
+  name: blackjack-server-svc
+  annotations:
+    networking.gke.io/max-rate-per-endpoint: "15"
+spec:
+  ports:
+  - port: 9008
+    targetPort: 3001
+  selector:
+    POD_LABEL: bj-server-pod-label
+  type: ClusterIP
