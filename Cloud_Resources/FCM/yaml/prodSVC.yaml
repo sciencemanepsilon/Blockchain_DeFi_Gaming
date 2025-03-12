@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: prod
+  name: fcm-svc
+spec:
+  ports:
+  - port: 9099
+    targetPort: 8080
+  selector:
+    POD_LABEL: fcm-pod-label
+  type: ClusterIP

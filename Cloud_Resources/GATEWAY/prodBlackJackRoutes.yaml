@@ -1,0 +1,60 @@
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: blackjack-routes
+  namespace: prod
+spec:
+  parentRefs:
+  - name: https-gateway
+    namespace: default
+    sectionName: https-listener-name
+  rules:
+  - matches:
+    - path:
+        value: /blackjackprod/socket.io
+        type: PathPrefix
+    backendRefs:
+    - name: blackjack-server-svc
+      port: 9008
+  - matches:
+    - path:
+        value: /BlackjackServer/checkTableExist/prod/
+        type: PathPrefix
+    backendRefs:
+    - name: blackjack-server-svc
+      port: 9008
+  - matches:
+    - path:
+        value: /BlackjackServer/leaveGame/prod/
+        type: PathPrefix
+    backendRefs:
+    - name: blackjack-server-svc
+      port: 9008
+  - matches:
+    - path:
+        value: /BlackjackServer/checkUserInGame/prod/
+        type: PathPrefix
+    backendRefs:
+    - name: blackjack-server-svc
+      port: 9008
+  - matches:
+    - path:
+        value: /BlackjackServer/rescueTable/prod/
+        type: PathPrefix
+    backendRefs:
+    - name: blackjack-server-svc
+      port: 9008
+  - matches:
+    - path:
+        value: /BlackjackServer/buyCoins/prod
+        type: PathPrefix
+    backendRefs:
+    - name: blackjack-server-svc
+      port: 9008
+  - matches:
+    - path:
+        value: /BlackjackServer/deleteStuckTable/prod/
+        type: PathPrefix
+    backendRefs:
+    - name: blackjack-server-svc
+      port: 9008

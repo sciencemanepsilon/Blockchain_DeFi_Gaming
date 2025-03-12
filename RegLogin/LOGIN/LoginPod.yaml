@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: beta
+  name: login-pods
+spec:
+  selector:
+    matchLabels:
+      POD_LABEL: login-pod-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        POD_LABEL: login-pod-label
+      namespace: beta
+    spec:
+      serviceAccountName: iam-fire-w-auth-w-idtoken
+      containers:
+      - name: login-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/reg-login:Login-NoSessionWrite-FCM
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "1m"
+            memory: "60Mi"
+        envFrom:
+          - configMapRef:
+              name: beta-config

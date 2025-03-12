@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: prod
+  name: sport-bets-api
+spec:
+  selector:
+    matchLabels:
+      POD_LABEL: sport-bets-api-pod-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        POD_LABEL: sport-bets-api-pod-label
+      namespace: prod
+    spec:
+      serviceAccountName: fire-w
+      containers:
+      - name: sport-bets-api-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/sportsbetapi:SportsBetApi-postponed-number
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "29m"
+            memory: "120Mi"
+        env:
+        - name: REDIS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: prod-poker-secrets
+              key: REDIS_PORT
+        - name: REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: prod-poker-secrets
+              key: REDIS_HOST
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: prod-poker-secrets
+              key: REDIS_PASSWORD
+        - name: TASK_CALLER_API
+          valueFrom:
+            configMapKeyRef:
+              name: prod-config
+              key: TASK_CALLER_API
+        - name: SPORTS_BET_EVENT_API
+          valueFrom:
+            configMapKeyRef:
+              name: prod-config
+              key: SPORTS_BET_EVENT_API
+        - name: DB_PREFIX
+          valueFrom:
+            configMapKeyRef:
+              name: prod-config
+              key: DB_COLL_PREFIX
+        envFrom:
+          - configMapRef:
+              name: prod-web3-config
+          - secretRef:
+              name: prod-secrets

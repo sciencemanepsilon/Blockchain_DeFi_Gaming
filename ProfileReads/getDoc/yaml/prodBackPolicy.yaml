@@ -1,0 +1,21 @@
+apiVersion: networking.gke.io/v1
+kind: GCPBackendPolicy
+metadata:
+  name: get-doc-backendpolicy
+  namespace: prod
+spec:
+  default:
+    logging:
+      enabled: false
+      #sampleRate: 0
+    connectionDraining:
+      drainingTimeoutSec: 6
+    sessionAffinity:
+      type: CLIENT_IP
+    timeoutSec: 11
+    #maxRatePerEndpoint: 15
+    #securityPolicy: example-security-policy
+  targetRef:
+    group: ""
+    kind: Service
+    name: get-doc-svc

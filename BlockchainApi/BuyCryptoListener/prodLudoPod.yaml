@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: prod
+  name: ludo-in-listener
+spec:
+  selector:
+    matchLabels:
+      POD_LABEL: ludo-in-pod-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        POD_LABEL: ludo-in-pod-label
+      namespace: prod
+    spec:
+      containers:
+      - name: ludo-in-listener-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/web3:BuyInList-setProviderExitWhen3reconnects2
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "30m"
+            memory: "50Mi"
+        env:
+        - name: GAME_SERVER_INDEX
+          value: '2'
+        envFrom:
+          - configMapRef:
+              name: prod-web3-config
+          - configMapRef:
+              name: prod-config

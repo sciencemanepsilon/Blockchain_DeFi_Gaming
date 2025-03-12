@@ -1,0 +1,77 @@
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: beta-social-routes
+  namespace: beta
+spec:
+  parentRefs:
+  - name: https-gateway
+    namespace: default
+    sectionName: https-listener-name
+  rules:
+  - matches:
+    - path:
+        value: /PeopleKnow/beta
+        type: PathPrefix
+    backendRefs:
+    - name: search-users-svc
+      port: 9001
+  - matches:
+    - path:
+        value: /SocialLists/beta
+        type: Exact
+    backendRefs:
+    - name: friends-getlist-svc
+      port: 9014
+  - matches:
+    - path:
+        value: /FriendRequest/beta
+        type: Exact
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: friends-module-svc
+      port: 9013
+  - matches:
+    - path:
+        value: /RejectFriendRequest/beta
+        type: Exact
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: friends-module-svc
+      port: 9013
+  - matches:
+    - path:
+        value: /AcceptFriend/beta
+        type: Exact
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: friends-module-svc
+      port: 9013
+  - matches:
+    - path:
+        value: /UnfriendApi/beta
+        type: Exact
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: friends-module-svc
+      port: 9017

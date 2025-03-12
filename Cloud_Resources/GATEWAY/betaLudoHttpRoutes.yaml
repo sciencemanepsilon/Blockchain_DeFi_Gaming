@@ -1,0 +1,46 @@
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: beta-ludo-routes
+  namespace: beta
+spec:
+  parentRefs:
+  - name: https-gateway
+    namespace: default
+    sectionName: https-listener-name
+  rules:
+  - matches:
+    - path:
+        value: /ludobeta/socket.io
+        type: PathPrefix
+    backendRefs:
+    - name: ludo-server-svc
+      port: 9016
+  - matches:
+    - path:
+        value: /LudoServer/checkTableExist/beta/
+        type: PathPrefix
+    backendRefs:
+    - name: ludo-server-svc 
+      port: 9016
+  - matches:
+    - path:
+        value: /LudoServer/clearTable/beta/
+        type: PathPrefix
+    backendRefs:
+    - name: ludo-server-svc 
+      port: 9016
+  - matches:
+    - path:
+        value: /LudoServer/leaveGame/beta/
+        type: PathPrefix
+    backendRefs:
+    - name: ludo-server-svc 
+      port: 9016
+  - matches:
+    - path:
+        value: /LudoServer/checkUserInGame/beta/
+        type: PathPrefix
+    backendRefs:
+    - name: ludo-server-svc 
+      port: 9016

@@ -1,0 +1,13 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: poker-web3-hpa
+  namespace: prod
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: prod-web3caller
+  minReplicas: 1
+  maxReplicas: 44
+  targetCPUUtilizationPercentage: 80

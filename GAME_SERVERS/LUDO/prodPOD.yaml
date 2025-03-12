@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: prod
+  name: prod-ludo-server
+spec:
+  selector:
+    matchLabels:
+      POD_LABEL: ludo-server-pod-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        POD_LABEL: ludo-server-pod-label
+      namespace: prod
+    spec:
+      serviceAccountName: fire-w
+      containers:
+      - name: ludo-server-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/ludo-server:ludo-invite-success
+        ports:
+        - containerPort: 3001
+        resources:
+          requests:
+            cpu: "52m"
+            memory: "140Mi"
+        envFrom:
+          - secretRef:
+              name: prod-poker-secrets

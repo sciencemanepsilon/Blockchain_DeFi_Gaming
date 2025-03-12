@@ -1,0 +1,21 @@
+apiVersion: networking.gke.io/v1
+kind: GCPBackendPolicy
+metadata:
+  name: poker-server-backendpolicy
+  namespace: prod
+spec:
+  default:
+    logging:
+      enabled: false
+      #sampleRate: 0
+    connectionDraining:
+      drainingTimeoutSec: 15
+    sessionAffinity:
+      type: CLIENT_IP
+    timeoutSec: 20
+    #maxRatePerEndpoint: 15
+    #securityPolicy: example-security-policy
+  targetRef:
+    group: ""
+    kind: Service
+    name: poker-server-svc

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: prod
+  name: sport-bets-listener
+spec:
+  selector:
+    matchLabels:
+      POD_LABEL: sport-bets-pod-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        POD_LABEL: sport-bets-pod-label
+      namespace: prod
+    spec:
+      serviceAccountName: zero-perm
+      containers:
+      - name: sport-bets-listener-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/sportsbet-listner:SportsBet-caller-update
+        ports:
+        - containerPort: 3001
+        resources:
+          requests:
+            cpu: "16m"
+            memory: "60Mi"
+        env:
+        - name: TASK_CALLER_API
+          valueFrom:
+            configMapKeyRef:
+              name: prod-config
+              key: TASK_CALLER_API
+        envFrom:
+          - configMapRef:
+              name: prod-web3-config
+          - secretRef:
+              name: prod-secrets

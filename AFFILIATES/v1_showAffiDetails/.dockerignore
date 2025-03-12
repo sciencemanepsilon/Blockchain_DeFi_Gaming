@@ -1,0 +1,29 @@
+# Ignore build artifacts
+bin/
+obj/
+out/
+
+# Ignore user-specific files
+*.user
+*.vs/
+*.vscode/
+*.suo
+*.cache
+*.log
+
+# Ignore dependencies (should be restored in Docker)
+packages/
+.nuget/
+project.lock.json
+
+# Ignore temporary files
+*.tmp
+*.swp
+
+# Ignore Docker-related files
+Dockerfile
+docker-compose.yml
+
+# Ignore environment files (for security)
+.env
+secrets.json

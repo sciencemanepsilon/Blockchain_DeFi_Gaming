@@ -1,0 +1,215 @@
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: beta-routes
+  namespace: beta
+spec:
+  parentRefs:
+  - name: https-gateway
+    namespace: default
+    sectionName: https-listener-name
+  rules:
+  - matches:
+    - path:
+        value: /UploadImage/beta
+        type: Exact
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Ori
+              value: '{origin_request_header}'
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: upload-image-svc
+      port: 9012
+  - matches:
+    - path:
+        value: /ChangeNick/beta
+        type: PathPrefix
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Ori
+              value: '{origin_request_header}'
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: settings-nickname-svc
+      port: 9011
+  - matches:
+    - path:
+        value: /SetInGame/beta
+        type: Exact
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Ori
+              value: '{origin_request_header}'
+    backendRefs:
+    - name: set-ingame-svc
+      port: 9003
+  - matches:
+    - path:
+        value: /CreateTable/onCreateGameReject/beta
+        type: Exact
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Ori
+              value: '{origin_request_header}'
+    backendRefs:
+    - name: create-table-svc
+      port: 9007
+  - matches:
+    - path:
+        value: /CreateTable/beta
+        type: Exact
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Ori
+              value: '{origin_request_header}'
+    backendRefs:
+    - name: create-table-svc
+      port: 9007
+  - matches:
+    - path:
+        value: /GetDoc/beta/FcmProxy/
+        type: PathPrefix
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Ori
+              value: '{origin_request_header}'
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: get-doc-svc
+      port: 9006
+  - matches:
+    - path:
+        value: /GetDoc/beta
+        type: Exact
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Country
+              value: '{client_region}'
+            - name: LB-City
+              value: '{client_city}'
+            - name: LB-Ori
+              value: '{origin_request_header}'
+            - name: LB-IP
+              value: '{client_ip_address}'
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: get-doc-svc
+      port: 9006
+  - matches:
+    - path:
+        value: /CookieSetter/beta
+        type: PathPrefix
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Ori
+              value: '{origin_request_header}'
+            - name: LB-IP
+              value: '{client_ip_address}'
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: cookie-setter-svc
+      port: 9005
+  - matches:
+    - path:
+        value: /ConnectWallet/beta
+        type: PathPrefix
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Country
+              value: '{client_region}'
+            - name: LB-City
+              value: '{client_city}'
+            - name: LB-Ori
+              value: '{origin_request_header}'
+            - name: LB-IP
+              value: '{client_ip_address}'
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: connect-wallet-svc
+      port: 9004
+  - matches:
+    - path:
+        value: /AddEmail/beta
+        type: PathPrefix
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Ori
+              value: '{origin_request_header}'
+            - name: LB-IP
+              value: '{client_ip_address}'
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: connect-wallet-svc
+      port: 9004
+  # poker Server Paths
+  - matches:
+    - path:
+        value: /beta/socket.io
+        type: PathPrefix
+    backendRefs:
+    - name: beta-poker-server-svc
+      port: 9002
+  - matches:
+    - path:
+        value: /PokerServer/checkTableExist/beta/
+        type: PathPrefix
+    backendRefs:
+    - name: beta-poker-server-svc 
+      port: 9002
+  - matches:
+    - path:
+        value: /PokerServer/clearTable/beta/
+        type: PathPrefix
+    backendRefs:
+    - name: beta-poker-server-svc 
+      port: 9002
+  - matches:
+    - path:
+        value: /PokerServer/leaveGame/beta/
+        type: PathPrefix
+    backendRefs:
+    - name: beta-poker-server-svc 
+      port: 9002
+  - matches:
+    - path:
+        value: /PokerServer/checkUserInGame/beta/
+        type: PathPrefix
+    backendRefs:
+    - name: beta-poker-server-svc 
+      port: 9002
+  # other Paths
+  - matches:
+    - path:
+        value: /SearchUsers/beta
+        type: PathPrefix
+    backendRefs:
+    - name: search-users-svc
+      port: 9001

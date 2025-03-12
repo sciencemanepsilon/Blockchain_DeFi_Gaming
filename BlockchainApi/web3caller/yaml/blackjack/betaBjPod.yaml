@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: beta
+  name: beta-web3caller-blackjack
+spec:
+  selector:
+    matchLabels:
+      POD_LABEL: beta-web3caller-blackjack-pod-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        POD_LABEL: beta-web3caller-blackjack-pod-label
+      namespace: beta
+    spec:
+      serviceAccountName: zero-perm
+      containers:
+      - name: beta-web3caller-blackjack-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/web3:FuncCaller-NoTxNonce-BlockNativeGas3
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "2m"
+            memory: "60Mi"
+        env:
+        - name: GAME_SERVER_INDEX
+          value: '1'
+        envFrom:
+          - configMapRef:
+              name: beta-web3-config
+          - configMapRef:
+              name: beta-config
+          - secretRef:
+              name: beta-secrets

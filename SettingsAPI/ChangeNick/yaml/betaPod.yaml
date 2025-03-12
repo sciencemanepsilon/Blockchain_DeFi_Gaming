@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: beta
+  name: settings-nickanme
+spec:
+  selector:
+    matchLabels:
+      POD_LABEL: settings-nickanme-pod-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        POD_LABEL: settings-nickanme-pod-label
+      namespace: beta
+    spec:
+      serviceAccountName: fire-w-auth-w
+      containers:
+      - name: settings-nickanme-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/settings:ChangeNick-PrivateRouteGmail
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "1m"
+            memory: "70Mi"
+        envFrom:
+          - configMapRef:
+              name: beta-config
