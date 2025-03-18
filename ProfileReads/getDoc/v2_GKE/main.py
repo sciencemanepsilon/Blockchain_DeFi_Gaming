@@ -103,7 +103,6 @@ def callFcmServer(uid, fcm, device, override):
 
 
 
-
 @app.get('/GetDoc/'+ route)
 async def makeGetDoc(
     wid:Annotated[str, Header()],
@@ -131,13 +130,18 @@ async def makeGetDoc(
             StatsCash[uid] = doc
         print("user not in statsCash, cache set")
 
-    
+    affi = ""
+    ReferentsAffiliated = False
     docUsers = fetchDoc("users", uid, pfx)
+    if 'ReferentsAffiliated' in docUsers: ReferentsAffiliated = True
+    if 'affiliate' in docUsers: affi = docUsers['affiliate']['uid']
     resUsers = {
+        "affiliate": affi,
+        "ReferentsAffiliated": ReferentsAffiliated,
         "countryCode": docUsers["countryCode"],
         "widProvider": docUsers["walletProvider"]
     }
-    print(f"country {resUsers['countryCode']}")
+    print(f"affiliate: {affi}, country: {resUsers['countryCode']}")
 
     inGame = False
     if "-" in docUsers['Session']['status']: inGame = True

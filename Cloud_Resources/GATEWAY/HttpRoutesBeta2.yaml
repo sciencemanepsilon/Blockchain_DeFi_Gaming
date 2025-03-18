@@ -11,6 +11,27 @@ spec:
   rules:
   - matches:
     - path:
+        value: /ApiProxy/beta/
+        type: PathPrefix
+    filters:
+      - type: RequestHeaderModifier
+        requestHeaderModifier:
+          add:
+            - name: LB-Country
+              value: '{client_region}'
+            - name: LB-City
+              value: '{client_city}'
+            - name: LB-Ori
+              value: '{origin_request_header}'
+            - name: LB-IP
+              value: '{client_ip_address}'
+            - name: LB-Encrypted
+              value: '{client_encrypted}'
+    backendRefs:
+    - name: api-proxy-svc
+      port: 9401
+  - matches:
+    - path:
         value: /TransHist/beta
         type: Exact
     filters:
