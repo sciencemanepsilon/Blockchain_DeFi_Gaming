@@ -12,7 +12,6 @@ Console.WriteLine("Env: pfx {0} nUsers {1} qSize {2} RevFac {3}",
     MyEnv.pfx, MyEnv.N_users, MyEnv.ReferentQuerySize, MyEnv.RevenueFactor);
 
 
-
 // Called by SportBetApi/DistributeFunds:
 app.MapPost("/SportBetPayout/{BetId}/{TxVol}/{currency}", async Task<IResult> (HttpContext ctx) => {
     string from = "SportBet";
@@ -74,7 +73,7 @@ app.MapGet("/AffiliateInfo/{uid}", async Task<IResult> (string uid) => {
         Console.WriteLine("{0}. End", joined);
         return Results.Text(joined, statusCode: 281);
     }
-    Referent[] arr = await FireDB.GetReferents(uid, TotaRef);
+    Referent[] arr = await Referents.GetArray(uid, TotaRef);
     double share = Math.Round(((double)TotaRef*100)/MyEnv.N_users, 4);
     Console.WriteLine("AffiliateInfo, share {0}, End", share);
     return Results.Json(new AffiData(
@@ -87,7 +86,7 @@ app.MapGet("/AffiliateInfo/{uid}", async Task<IResult> (string uid) => {
 app.MapGet("/ClaimTx/{uid}", async Task<IResult> (string uid) => {
     Console.WriteLine("START: ClaimTx uid {0}", uid);
 
-    ClaimTx[] cHist = await FireDB.GetClaimTx(uid);
+    ClaimTx[] cHist = await ExeClaim.GetClaimTx(uid);
     Console.WriteLine("ClaimTx End");
     return Results.Json(cHist);
 });
@@ -97,9 +96,37 @@ app.MapGet("/ClaimTx/{uid}", async Task<IResult> (string uid) => {
 app.MapGet("/ReferentTx/{uid}", async Task<IResult> (string uid) => {
     Console.WriteLine("START: ReferentTx uid {0}", uid);
 
-    ReferentTx[] arr = await FireDB.ReferentTx(uid);
+    ReferentTx[] arr = await Referents.GetTxArray(uid);
     Console.WriteLine("ReferentTx End");
     return Results.Json(arr);
+});
+
+
+// Called by Frontend => Api-Proxy to exe Claim
+app.MapGet("/ExeClaim/{vol}/{UsdValue}/{uid}/{wid}", async Task<IResult> (
+    double vol, double UsdValue, string uid, string wid) => {
+
+    double usd = vol * UsdValue;
+    Console.WriteLine(
+        "START: ExeClaim uid {0} vol {1} pol/usd {2} usd {3} wid {4}",
+        uid, vol, UsdValue, usd, wid
+    );
+    if (usd < MyEnv.MinClaim) return Results.Text("Claim too low", statusCode: 281);
+
+    string err = await ExeClaim.UpdateUnclaimed(uid, vol, UsdValue);
+    if (err == "tx failed") 
+        return Results.Text("Network is busy. Try again", statusCode: 282);
+    if (err != "success") return Results.Text(err, statusCode: 283);
+
+    (string res, int code) = await Httpx.MakeRequest(
+        "web3caller", HttpMethod.Get,
+        null, new {vol=vol, uid=uid, wid=wid}
+    );
+    if (code != 200) return Results.Text("Send us email we will send money", statusCode:284);
+
+    await ExeClaim.WriteClaimTx(uid, "POL", res, vol);
+    Console.WriteLine("ExeClaim End");
+    return Results.Text("Success");
 });
 
 app.Run();
