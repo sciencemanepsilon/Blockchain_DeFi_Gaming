@@ -103,7 +103,7 @@ app.MapGet("/ReferentTx/{uid}", async Task<IResult> (string uid) => {
 
 
 // Called by Frontend => Api-Proxy to exe Claim
-app.MapGet("/ExeClaim/{vol}/{UsdValue}/{uid}/{wid}", async Task<IResult> (
+app.MapGet("/AffiliateRedeem/{vol}/{UsdValue}/{uid}/{wid}", async Task<IResult> (
     double vol, double UsdValue, string uid, string wid) => {
 
     double usd = vol * UsdValue;
@@ -119,14 +119,15 @@ app.MapGet("/ExeClaim/{vol}/{UsdValue}/{uid}/{wid}", async Task<IResult> (
     if (err != "success") return Results.Text(err, statusCode: 283);
 
     (string res, int code) = await Httpx.MakeRequest(
-        "web3caller", HttpMethod.Get,
-        null, new {vol=vol, uid=uid, wid=wid}
+        MyEnv.LudoWeb3_URL + MyEnv.LudoWeb3_Route, HttpMethod.Post, null,
+        new {emailAmount=vol, funcName="SendEmailBonus", emailReceiver=wid}
     );
     if (code != 200) return Results.Text("Send us email we will send money", statusCode:284);
 
-    await ExeClaim.WriteClaimTx(uid, "POL", res, vol);
-    Console.WriteLine("ExeClaim End");
-    return Results.Text("Success");
+    Httpx.Web3_Response ResWeb3 = Httpx.GetJsonResponse(res);
+    await ExeClaim.WriteClaimTx(uid, "POL", ResWeb3.hash, vol);
+    Console.WriteLine("END: ExeClaim TxHash {0}", ResWeb3.hash);
+    return Results.Json(new { error="no error", hash=ResWeb3.hash });
 });
 
 app.Run();

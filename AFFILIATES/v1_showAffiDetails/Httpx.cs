@@ -32,4 +32,9 @@ public class Httpx {
         Console.WriteLine("res {0} int {1} text {2}", res.StatusCode, rcode, ResText);
         return (ResText, rcode);
     }
+
+    public static Web3_Response GetJsonResponse(string jstring) {
+        return JsonSerializer.Deserialize<Web3_Response>(jstring);
+    }
+    public record Web3_Response(string hash, string error);
 }
