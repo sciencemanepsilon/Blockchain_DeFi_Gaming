@@ -1,0 +1,24 @@
+apiVersion: networking.gke.io/v1
+kind: HealthCheckPolicy
+metadata:
+  name: create-table-hcheck
+  namespace: prod
+spec:
+  default:
+    checkIntervalSec: 300
+    timeoutSec: 22
+    healthyThreshold: 1
+    unhealthyThreshold: 1
+    logConfig:
+      enabled: false
+    config:
+      type: HTTP
+      httpHealthCheck:
+        portSpecification: USE_FIXED_PORT
+        port: 8080
+        requestPath: /CreateTable/hCheck
+        proxyHeader: NONE
+  targetRef:
+    group: ""
+    kind: Service
+    name: create-table-svc

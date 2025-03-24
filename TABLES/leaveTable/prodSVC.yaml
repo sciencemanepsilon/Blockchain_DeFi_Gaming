@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: prod
+  name: prod-leave-table-svc
+spec:
+  ports:
+  - port: 82
+    targetPort: 8080
+  selector:
+    POD_LABEL: leave-table-pod-label
+  type: ClusterIP

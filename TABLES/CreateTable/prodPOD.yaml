@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: prod
+  name: create-table
+spec:
+  selector:
+    matchLabels:
+      POD_LABEL: create-table-pod-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        POD_LABEL: create-table-pod-label
+      namespace: prod
+    spec:
+      serviceAccountName: fire-w-auth-r
+      containers:
+      - name: create-table-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/tables:CreateTable-GetFcmReceivers3
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "27m"
+            memory: "64Mi"
+        envFrom:
+          - configMapRef:
+              name: prod-config
