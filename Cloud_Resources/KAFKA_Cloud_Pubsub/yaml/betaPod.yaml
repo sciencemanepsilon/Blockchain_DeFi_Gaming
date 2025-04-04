@@ -17,10 +17,13 @@ spec:
       serviceAccountName: beta-pubsub-publisher
       containers:
       - name: pubsub-caller-container
-        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/cloud-resources:PubSubCaller-Beta1
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/cloud-resources:PubSubCaller-Batch-Timeout8
         ports:
         - containerPort: 8080
         resources:
           requests:
             cpu: "10m"
             memory: "30Mi"
+        envFrom:
+        - configMapRef:
+            name: beta-config
