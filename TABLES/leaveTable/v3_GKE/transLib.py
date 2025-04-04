@@ -1,10 +1,9 @@
+import httpx
 from os import environ
 from json import loads
-from httpx import Client
-syncHpx = Client(timeout=None)
 
 def getFeeFak(url, route):
-    try: errg = syncHpx.get(url + route).json()
+    try: errg = httpx.get(url + route).json()
     except Exception as e:
         print(f"getCommRate call failed: {e}")
         return 0.01
@@ -41,20 +40,23 @@ topicPath, db_pfx, specialHandTrans, handWins, handLosses = (
 web3Config, noWeb3callOnFinishHandColls = genWeb3config(
     loads(environ['PRETTY_TX_ORIs']), environ['getCommRateRoute']
 )
+syncHpx = httpx.AsyncClient(timeout=1200)
 print(f"init envs: topic {topicPath} pfx {db_pfx} web3Config {web3Config}")
 
-def contractGameById(tid, gameColl):
+
+
+async def contractGameById(tid, gameColl):
     route = f"{environ['getGameByIdRoute']}/{tid}"
-    res = syncHpx.get(web3Config[gameColl]['web3url'] + route)
+    res = await syncHpx.get(web3Config[gameColl]['web3url'] + route)
     print(f"web3 GetGamByIdRes {res.status_code}")
     if res.status_code == 200:
         res = res.json()
         return res['game']
     return res.status_code
 
-def callContract(tid, plArr, gameColl):
+async def callContract(tid, plArr, gameColl):
     try:
-        return syncHpx.post(
+        return await syncHpx.post(
             web3Config[gameColl]['web3url'] + environ['contractFuncRoute'],
             json={"funcName":"leaveGame", "tid":tid, "playersArr":plArr}
         )

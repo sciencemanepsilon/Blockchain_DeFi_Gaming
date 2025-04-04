@@ -39,11 +39,12 @@ async def userArr(user, gameColl, tableId, currency):
     }}
     # Affiliate:
     affi = 0
-    if gameColl == "BlackJack_Tables" and user['affiliate']:
-        OurRevenue = user['coinsBeforeJoin'] - user['wallet']
-        if OurRevenue > 0:
-            affi = {"Uid":uid, "Aid":user['affiliate'], "TxVol":OurRevenue}
-    
+    if user['affiliate']:
+        if gameColl in noWeb3callOnFinishHandColls:
+            OurRevenue = user['coinsBeforeJoin'] - user['wallet']
+            if OurRevenue > 0:
+                affi = {"Uid":uid, "Aid":user['affiliate'], "TxVol":OurRevenue}
+        else: affi = {"Uid":uid, "Aid":user['affiliate'], "TxVol":None}
     print(f"hand {j} done, Affiliate {affi} BqTranses {len(BqTranses)} stats {staPass}")
     return res, genWinLoseAmount(stats, uid, user['walletAddress'], gameColl, user['wallet']), affi
 

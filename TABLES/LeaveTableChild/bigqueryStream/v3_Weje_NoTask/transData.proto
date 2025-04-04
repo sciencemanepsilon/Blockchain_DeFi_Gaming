@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+message CustomerRecord {
+    required string uid = 1;
+    required string name = 2;
+    optional string From = 3 [default = "universal_Tables"];
+    required float coinsAmount = 4;
+    required float fee = 5;
+    required string date = 6;
+    required string firebaseID = 7;
+    required string from_id = 8;
+    required string currency = 9;
+}

@@ -2,22 +2,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: beta
-  name: beta-leave-table
+  name: leave-child-affiliate
 spec:
   selector:
     matchLabels:
-      POD_LABEL: beta-leave-table-pod-label
+      POD_LABEL: leave-child-affiliate-pod-label
   replicas: 1
   template:
     metadata:
       labels:
-        POD_LABEL: beta-leave-table-pod-label
+        POD_LABEL: leave-child-affiliate-pod-label
       namespace: beta
     spec:
-      serviceAccountName: beta-pubsub-publisher
+      serviceAccountName: fire-w-pubsub-pull
       containers:
-      - name: beta-leave-table-container
-        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/tables:LeaveTable-LudoWeb3onEachHand-AllGamesAffiliate3
+      - name: leave-child-affiliate-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/leave-tab-children:AffiliateEarnUpdateAllGames3
         ports:
         - containerPort: 8080
         resources:

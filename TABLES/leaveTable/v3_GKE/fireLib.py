@@ -4,13 +4,13 @@ from transLib import calcBallanceAnd_cAfter, web3Config, contractGameById
 def getUidsFromDictArr(arr, targetKey):
     return [pl[targetKey] for pl in arr]
 
-def getWeb3pl(tableId, users, coll):
-    pres = contractGameById(tableId, coll)
+async def getWeb3pl(tableId, users, coll):
+    pres = await contractGameById(tableId, coll)
     if not pres or pres == 500: return getUidsFromDictArr(users, "uid")
     return getUidsFromDictArr(pres['players'], "playerId")
 
 
-def validateInput(tableId, admin, playerCount, users, gameColl, mode):
+async def validateInput(tableId, admin, playerCount, users, gameColl, mode):
     single = True
     if None in {tableId, admin, playerCount}: return "missing params",0,0
     if not users or not isinstance(users, list): return "users mustBeNonEmptyArray",0,0
@@ -18,7 +18,7 @@ def validateInput(tableId, admin, playerCount, users, gameColl, mode):
     if "uid" not in users[0]: return "missing uid",0,0
     if gameColl not in web3Config: return "invalid gameColl",0,0
     if playerCount == 1 or len(users) > 1: single = False
-    if single or len(users) > 1: players = getWeb3pl(tableId, users, gameColl)
+    if single or len(users) > 1: players = await getWeb3pl(tableId, users, gameColl)
     else: players = []
 
     for usDoc in users:
