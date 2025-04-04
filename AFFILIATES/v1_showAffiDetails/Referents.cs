@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Google.Cloud.Firestore;
@@ -34,15 +36,32 @@ public struct Referents {
         return arr;
     }
 
-    public static async Task<Referent[]> GetArray(string uid, int TotRef) {
-        if (TotRef == 0) return Array.Empty<Referent>();
-        int ii = 0;
-        QuerySnapshot qs = await FireDB.db
-            .Collection($"{MyEnv.pfx}users")
-            .WhereEqualTo("affiliate.uid", uid)
-            .Limit(MyEnv.ReferentQuerySize).GetSnapshotAsync();
+    public static readonly HashSet<string> ofs = new HashSet<string>(3) {
+        "nick", "earned", "since"
+    };
 
-        Console.WriteLine("ReferentsQueryCount {0}", qs.Documents.Count);
+    public static async Task<(string err, Referent[] arr, T lv, bool vm)> GetArray<T>(
+        string uid, string OrderField, string OrderDir, T pagi) {
+        int ii = 0;
+        T LastVal = default(T);
+        bool ViewMore = false;
+        Console.WriteLine("ii {0} LastVal {1} ViewMore {2}", ii, LastVal, ViewMore);
+
+        Query qu = FireDB.db
+            .Collection($"{MyEnv.pfx}users")
+            .WhereEqualTo("affiliate.uid", uid);
+
+        if (OrderDir == "Asc") qu = qu.OrderBy($"affiliate.{OrderField}");
+        else qu = qu.OrderByDescending($"affiliate.{OrderField}");
+        if (pagi != null) {
+            try { qu = qu.StartAfter(pagi); }
+            catch (Exception ex) {
+                Console.WriteLine("Pagination failed: {0}", ex.Message);
+                return ("pagination value mismatch", Array.Empty<Referent>(), LastVal, false);
+        }}
+        QuerySnapshot qs = await qu.Limit(MyEnv.ReferentQuerySize).GetSnapshotAsync();
+        Console.WriteLine("qCount {0} max {1}", qs.Documents.Count, MyEnv.ReferentQuerySize);
+        if (qs.Documents.Count == 0) return (null, Array.Empty<Referent>(), LastVal, false);
         Referent[] arr = new Referent[qs.Documents.Count];
 
         foreach (DocumentSnapshot doc in qs.Documents) {
@@ -53,19 +72,31 @@ public struct Referents {
                 doc.GetValue<string>("photoURI"),
                 earn, doc.GetValue<string>("affiliate.since")
             );
+            if (ii == MyEnv.ReferentQuerySize) {
+                ViewMore = true;
+                LastVal = doc.GetValue<T>($"affiliate.{OrderField}");
+            }
             Console.WriteLine(
-                "Tx {0} Nr {1} nick {2} earned {3}", doc.Id, ii-1, nick, earn);
+                "Referent {0} Nr {1} nick {2} earned {3}", doc.Id, ii-1, nick, earn);
         }
-        return arr;
+        Console.WriteLine("RefArray done, ViewMore {0} LastVal {1}", ViewMore, LastVal);
+        return (null, arr, LastVal, ViewMore);
     }
 }
 
+public class ReferentsJsonResponse<T> {
+    public string error {get;}
+    public bool ViewMore {get;}
+    public T LastValue {get;}
+    public Referent[] referents {get;}
+    public ReferentsJsonResponse(string er, Referent[] rf, bool vm, T of) {
+        error=er; referents=rf; ViewMore=vm; LastValue=of;
+}}
 public record ReferentTx(
     string Referent, string Affiliate,
     string Date, string Currency, string From,
     string TxHash, double TxVolume, double OurRevenue, double YourRevenue
 );
-
 public class Referent {
     public string uid {get;}
     public string nick {get;}

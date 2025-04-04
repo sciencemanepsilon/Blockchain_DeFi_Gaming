@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: beta
+  name: sport-bet-child-affiliate
+spec:
+  selector:
+    matchLabels:
+      POD_LABEL: sport-bet-child-affiliate-pod-label
+  replicas: 4
+  template:
+    metadata:
+      labels:
+        POD_LABEL: sport-bet-child-affiliate-pod-label
+      namespace: beta
+    spec:
+      serviceAccountName: fire-w-pubsub-pull
+      containers:
+      - name: sport-bet-child-affiliate-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/affiliate:SportBetChild-UpdateAffiEarn2
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "8m"
+            memory: "60Mi"
+        envFrom:
+          - configMapRef:
+              name: beta-config

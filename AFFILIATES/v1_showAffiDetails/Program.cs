@@ -41,44 +41,45 @@ app.MapPost("/SportBetPayout/{BetId}/{TxVol}/{currency}", async Task<IResult> (H
 
 
 
-// Called by LeaveTable-FinishHandApi:
-app.MapPost("/GameTablePayout/{tid}/{currency}", async Task<IResult> (HttpContext ctx) => {
-    string tid = ctx.Request.RouteValues["tid"].ToString();
-    string currency = ctx.Request.RouteValues["currency"].ToString();
-    string from = ctx.Request.Headers["from"].ToString();
-    string TxHash = ctx.Request.Headers["tx-hash"].ToString();
-    string FireTxId = ctx.Request.Headers["fire-txid"].ToString();
-    Player[] players = await ctx.Request.ReadFromJsonAsync<Player[]>();
+// Called by Frontend => Api-Proxy to fetch Affiliate Info 
+app.MapGet("/AffiliateInfo/{uid}", async Task<IResult> (string uid) => {
+    string od = "DESC";
+    string of = "earned";
+    Console.WriteLine("START: AffiliateInfo uid {0}", uid);
 
-    Console.WriteLine("START: {0}/{1} nPl {2} TxHash {3} FireId",
-        from, tid, players.Length, TxHash, FireTxId);
+    FireDB.AffiDoc doc = await FireDB.GetAffiliateInfo(uid);
+    if (doc.TotalEarned == -9.2) return Results.Text(doc.JoinedAt, statusCode: 281);
+    double share = Math.Round(((double)doc.TotalReferents*100)/MyEnv.N_users, 4);
 
-    (double comm, string pretty, string dat) = MyEnv.GetGameAtt(from);
-    foreach (Player pl in players) {
-        await FireDB.RunTx(pl.TxVol, comm, pl.Aid, pl.Uid, FireTxId, dat, currency, pretty, TxHash);
-    }
-    Console.WriteLine("Outside loop, all done, End");
-    return Results.Text("Success");
+    var Rn = await Referents.GetArray<double?>(uid, of, od, null);
+    Console.WriteLine("AffiliateInfo, share {0}, End", share);
+    return Results.Json(new AffiData<double?>(
+        "no error", doc.TotalReferents, share, doc.TotalEarned,
+        doc.Unclaimed, Rn.arr, doc.JoinedAt, doc.RevenuePercent, Rn.vm, Rn.lv
+    ));
 });
 
 
-
-// Called by Frontend => Api-Proxy to fetch Affiliate Info 
-app.MapGet("/AffiliateInfo/{uid}", async Task<IResult> (string uid) => {
-    Console.WriteLine("START: AffiliateInfo uid {0}", uid);
-
-    (double total, int TotaRef,
-        double unclm, string joined, int comm) = await FireDB.GetAffiliateInfo(uid);
-    if (total == -9.2) {
-        Console.WriteLine("{0}. End", joined);
-        return Results.Text(joined, statusCode: 281);
+// Called by Frontend => Api-Proxy to View Referents
+app.MapGet("/GetReferents/{of}/{od}/{pagi}/{uid}",
+    async Task<IResult> (string of, string od, string pagi, string uid) => {
+    if (Referents.ofs.Contains(of) == false) {
+        Console.WriteLine("invalid OrderBy-Field: {0}, End", of);
+        return Results.Text("invalid OrderBy-Field", statusCode: 282);
     }
-    Referent[] arr = await Referents.GetArray(uid, TotaRef);
-    double share = Math.Round(((double)TotaRef*100)/MyEnv.N_users, 4);
-    Console.WriteLine("AffiliateInfo, share {0}, End", share);
-    return Results.Json(new AffiData(
-        "no error", TotaRef, share, total, unclm, arr, joined, comm
-    ));
+    Console.WriteLine("START: Get-Referents uid {0} of {1} od {2} pagi {3}", uid, of, od, pagi);
+    if (of == "earned") {
+        double? PagiNum = pagi == "no"? null: Convert.ToDouble(pagi);
+        var Rn = await Referents.GetArray<double?>(uid, of, od, PagiNum);
+        if (Rn.err != null) return Results.Text(Rn.err, statusCode: 283);
+        Console.WriteLine("Get-Referents, End");
+        return Results.Json(new ReferentsJsonResponse<double?>("no error", Rn.arr, Rn.vm, Rn.lv));
+    }
+    string PagiStr = pagi == "no"? null: pagi;
+    var Rs = await Referents.GetArray<string>(uid, of, od, PagiStr);
+    if (Rs.err != null) return Results.Text(Rs.err, statusCode: 283);
+    Console.WriteLine("Get-Referents, End");
+    return Results.Json(new ReferentsJsonResponse<string>("no error", Rs.arr, Rs.vm, Rs.lv));
 });
 
 

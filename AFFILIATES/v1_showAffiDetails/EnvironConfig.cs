@@ -27,7 +27,7 @@ public readonly struct MyEnv {
         .Environment.GetEnvironmentVariable("contractFuncRoute");
     
     public static readonly Dictionary<string, TableAtt> Tab = new Dictionary<string, TableAtt>() {
-        { "SportBet", new TableAtt(0.025, "Sport Bet") },
+        { "SportBet", new TableAtt(0.05, "Sport Bet") },
         { "pokerCP_Tables", new TableAtt(0.01, "Poker Cash Play") },
         { "pokerTournament_Tables", new TableAtt(0.01, "Poker Tournament") },
         { "BlackJack_Tables", new TableAtt(1.0, "BlackJack") },
