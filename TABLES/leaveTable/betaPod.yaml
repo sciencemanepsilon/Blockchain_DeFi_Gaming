@@ -14,10 +14,11 @@ spec:
         POD_LABEL: beta-leave-table-pod-label
       namespace: beta
     spec:
+      terminationGracePeriodSeconds: 88
       serviceAccountName: beta-pubsub-publisher
       containers:
       - name: beta-leave-table-container
-        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/tables:LeaveTable-LudoWeb3onEachHand-AllGamesAffiliate3
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/tables:LeaveTable-LudoWeb3onEachHand-AffiBetAmount
         ports:
         - containerPort: 8080
         resources:

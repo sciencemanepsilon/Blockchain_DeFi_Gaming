@@ -17,7 +17,7 @@ spec:
       serviceAccountName: fire-w
       containers:
       - name: poker-server-container
-        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/poker-server:Poker-last-player-leave
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/poker-server:poker-hand-nan-poolsize
         ports:
         - containerPort: 3001
         resources:

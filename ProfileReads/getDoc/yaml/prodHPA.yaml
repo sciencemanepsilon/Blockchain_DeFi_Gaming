@@ -9,7 +9,7 @@ spec:
     kind: Deployment
     name: get-doc
   minReplicas: 1
-  maxReplicas: 44
+  maxReplicas: 144
   metrics:
   - type: Object
     object:

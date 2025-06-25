@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: beta
+  name: sport-child-stats-tx-svc
+spec:
+  ports:
+  - port: 94
+    targetPort: 8080
+  selector:
+    POD_LABEL: sport-child-stats-tx-pod-label
+  type: ClusterIP

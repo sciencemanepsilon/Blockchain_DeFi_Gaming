@@ -17,7 +17,7 @@ spec:
       serviceAccountName: fire-w
       containers:
       - name: ludo-server-container
-        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/ludo-server:ludo-invite-success
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/ludo-server:ludo-homw-won
         ports:
         - containerPort: 3001
         resources:

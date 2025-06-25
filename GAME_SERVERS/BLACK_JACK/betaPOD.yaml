@@ -17,7 +17,7 @@ spec:
       serviceAccountName: beta-fire-w
       containers:
       - name: bj-server-container
-        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/blackjack-server:affiliate-id-pass
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/blackjack-server:blackjack-disconnect
         ports:
         - containerPort: 3001
         resources:

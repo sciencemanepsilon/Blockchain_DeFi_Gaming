@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: prod
+  namespace: beta
   name: leave-child-affiliate
 spec:
   selector:
@@ -12,10 +12,10 @@ spec:
     metadata:
       labels:
         POD_LABEL: leave-child-affiliate-pod-label
-      namespace: prod
+      namespace: beta
     spec:
       terminationGracePeriodSeconds: 63
-      serviceAccountName: fire-w-auth-r-pubsub-pullsub
+      serviceAccountName: fire-w-pubsub-pull
       containers:
       - name: leave-child-affiliate-container
         image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/leave-tab-children:AffiliateEarnUpdate8
@@ -23,8 +23,8 @@ spec:
         - containerPort: 8080
         resources:
           requests:
-            cpu: "13m"
-            memory: "55Mi"
+            cpu: "8m"
+            memory: "60Mi"
         envFrom:
           - configMapRef:
-              name: prod-config
+              name: beta-config

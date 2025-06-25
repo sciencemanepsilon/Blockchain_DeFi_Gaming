@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: prod
+  name: sport-child-stats-tx
+spec:
+  selector:
+    matchLabels:
+      POD_LABEL: sport-child-stats-tx-pod-label
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        POD_LABEL: sport-child-stats-tx-pod-label
+      namespace: prod
+    spec:
+      serviceAccountName: fire-w
+      containers:
+      - name: sport-child-stats-tx-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/sportsbetapi:SportsBetChild-StatsAndTx3
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "13m"
+            memory: "80Mi"
+        env:
+        - name: DB_COLL_PREFIX
+          valueFrom:
+            configMapKeyRef:
+              name: prod-config
+              key: DB_COLL_PREFIX

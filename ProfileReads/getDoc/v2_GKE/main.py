@@ -60,7 +60,7 @@ async def ManageFCM(
     print(f"START: wid {wid} lbOri {lb_ori} ori {Origin}")
     print(f"crypt {lb_encrypted} override {override}")
 
-    uid = ValidateInput(lb_encrypted, scookie, wid)
+    uid, wid = ValidateInput(lb_encrypted, scookie, wid)
     if isinstance(uid, dict): return uid
 
     if fcm == "remove":
@@ -118,7 +118,7 @@ async def makeGetDoc(
     print(f"START: wid {wid} lbOri {lb_ori} referer {Referer} ori {Origin}")
     print(f"ip {lb_ip} cou {lb_country} ci {lb_city} cryp {lb_encrypted}")
 
-    uid = ValidateInput(lb_encrypted, scookie, wid)
+    uid, wid = ValidateInput(lb_encrypted, scookie, wid)
     if isinstance(uid, dict): return uid
 
     if uid in StatsCash:
@@ -136,12 +136,13 @@ async def makeGetDoc(
     if 'ReferentsAffiliated' in docUsers: ReferentsAffiliated = True
     if 'affiliate' in docUsers: affi = docUsers['affiliate']['uid']
     resUsers = {
+        "wid": wid,
         "affiliate": affi,
         "ReferentsAffiliated": ReferentsAffiliated,
         "countryCode": docUsers["countryCode"],
         "widProvider": docUsers["walletProvider"]
     }
-    print(f"affiliate: {affi}, country: {resUsers['countryCode']}")
+    print(f"affiliate: {affi}, BaseUserData: {resUsers}")
 
     inGame = False
     if "-" in docUsers['Session']['status']: inGame = True
@@ -176,22 +177,22 @@ async def makeGetDoc(
 def ValidateInput(lb_encrypted, scookie, wid):
     if not lb_encrypted or lb_encrypted == "false":
         print("no TLS, End")
-        return {"error":"bad request"}
+        return {"error":"bad request"},0
     if scookie in badStrings:
         print(f"bad cookie {scookie}, End")
-        return {"error":"missing auth token"}
+        return {"error":"missing auth token"},0
     
     try: claims = auth.verify_session_cookie(scookie, check_revoked=True)
     except Exception as e:
         print(f"cook vali failed: {e}")
-        return {"error":"cookie veri failed"}
+        return {"error":"cookie veri failed"},0
     if wid != claims['wid']:
         print("wid mismatch, End")
-        return {"error":"wallet mismatch"}
+        return {"error":"wallet mismatch"},0
     if custClaimLabel != claims['platform']:
         print("env mismatch, End")
-        return {"error":"env mismatch"}
-    return claims['uid']
+        return {"error":"env mismatch"},0
+    return claims['uid'], claims['wid']
 
 
 def fetchDoc(coll, uid, pfx):

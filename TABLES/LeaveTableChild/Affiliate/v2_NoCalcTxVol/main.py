@@ -42,21 +42,21 @@ def callback(message: pubsub_v1.subscriber.message.Message):
     
     pretty = PrettyGames[col]
     dat = datetime.utcnow().replace(microsecond=0).isoformat() +'Z'
-    if col == "BlackJack_Tables":
-        TxVolumes = None
-        comm = 1
+    if col == "BlackJack_Tables": comm = 1
     else:
         if not AffiArray[0]['TxVol']:
-            TxVolumes = GetTxVol(data['statsTransByUid'])
-            if not TxVolumes:
-                print("Leave Table Poker/Ludo with no Tx, End")
-                return message.ack()
+            print("Leave Table Poker/Ludo with no Tx, End")
+            return message.ack()
         if 'poker' in col: comm = 0.01
         elif 'Ludo' in col: comm = 0.05
-        else: return message.ack()
+        else:
+            print("invalid col, End")
+            return message.ack()
 
     for ele in AffiArray:
-        if not ele['TxVol']: ele['TxVol'] = TxVolumes[ele['Uid']]
+        if not ele['TxVol']:
+            print(f"missing TxVol for ele {ii+1}, next iteration")
+            continue
 
         YourRev = ele['TxVol'] *comm *RevenueFactor
         OurRev = ele['TxVol'] *comm - YourRev
@@ -75,23 +75,6 @@ def callback(message: pubsub_v1.subscriber.message.Message):
 
     print(f"{ii} Tx processed, END")
     message.ack()
-
-
-
-def GetTxVol(dat):
-    res, ky, twin = ({}, dat.keys(), 0)
-    for uid in ky:
-        if not dat[uid]['tra'] or not isinstance(dat[uid]['tra'], list): return None
-        tx = dat[uid]['tra'][0]
-
-        if tx['name'] == 'game win':
-            FeeFree = tx['coinAm'] + tx['fee']
-            twin += FeeFree
-    
-    if twin == 0: return None
-    for uid in ky: res[uid] = twin/len(dat)
-    print(f"tWin {twin} TxVolumes {res}")
-    return res
 
 
 @firestore.transactional

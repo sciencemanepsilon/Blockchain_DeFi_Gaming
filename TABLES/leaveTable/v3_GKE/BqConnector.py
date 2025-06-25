@@ -26,7 +26,7 @@ async def userArr(user, gameColl, tableId, currency):
     uid, res = (user['uid'], 0)
     print(f"got user {uid}, hands {user['hands']}")
 
-    j, BqTranses, iswatch, stats, traDates = parseHands(
+    j, BqTranses, iswatch, stats, traDates, SumBet = parseHands(
         user['hands'], gameColl, tableId, uid, user['isWatcher'], currency
     )
     erg = valiStats(user['gameJoinedAt'], user['gameLeaveAt'], stats)
@@ -44,7 +44,7 @@ async def userArr(user, gameColl, tableId, currency):
             OurRevenue = user['coinsBeforeJoin'] - user['wallet']
             if OurRevenue > 0:
                 affi = {"Uid":uid, "Aid":user['affiliate'], "TxVol":OurRevenue}
-        else: affi = {"Uid":uid, "Aid":user['affiliate'], "TxVol":None}
+        else: affi = {"Uid":uid, "Aid":user['affiliate'], "TxVol":SumBet}
     print(f"hand {j} done, Affiliate {affi} BqTranses {len(BqTranses)} stats {staPass}")
     return res, genWinLoseAmount(stats, uid, user['walletAddress'], gameColl, user['wallet']), affi
 

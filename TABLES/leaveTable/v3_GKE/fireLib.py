@@ -54,12 +54,12 @@ def clacStats(sta, tra):
 
 
 def parseHands(hands, gameColl, tableId, uid, iswatch, currency):
+    SumBet = 0
+    print(f"len hands {len(hands)} SumBet {SumBet}")
     i, BqTranses, stats, actLogDate = (1, [], {"currency":currency}, [])
     if len(hands) < 1:
-        print("empty hand")
-        return i, BqTranses, iswatch, stats, actLogDate
+        return i, BqTranses, iswatch, stats, actLogDate, SumBet
     
-    print(f"hands {len(hands)} gam {gameColl}")
     for hand in hands:
         error, actLog, BqLog = calcBallanceAnd_cAfter(
             gameColl, hand, tableId, uid, currency
@@ -67,10 +67,11 @@ def parseHands(hands, gameColl, tableId, uid, iswatch, currency):
         if error != "no error":
             print(error)
             continue
+        if 'betAmount' in hand: SumBet += hand['betAmount']
         BqLog['fireId'], iswatch = str(uuid4()), hand['isWatcher']
         BqTranses.append(BqLog)
         actLogDate.append(actLog['date'])
         stats = clacStats(stats, actLog)
         print(f"user {uid} hand {i} amount {hand['amount']} stats {stats}")
         i = i + 1
-    return i, BqTranses, iswatch, stats, actLogDate
+    return i, BqTranses, iswatch, stats, actLogDate, SumBet
