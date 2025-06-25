@@ -106,7 +106,7 @@ def callPubsubBatch(topicPath, jsDict, attributes):
         publish_future.add_done_callback(callback)
         PromiseArr.append(publish_future)
 
-    futures.wait(PromiseArr, timeout=8, return_when=futures.ALL_COMPLETED)
+    futures.wait(PromiseArr, timeout=maxtime + 5, return_when=futures.ALL_COMPLETED)
     print(f"Batch: Published messages-batch {len(PromiseArr)}, End")
     return False
 

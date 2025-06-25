@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  namespace: beta
+  name: dummy-cronjob
+spec:
+  schedule: "*/1 * * * *"
+  concurrencyPolicy: Replace
+  startingDeadlineSeconds: 45
+  suspend: false
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 8
+  jobTemplate:
+    metadata:
+      namespace: beta
+    spec:
+      activeDeadlineSeconds: 20
+      completions: 1
+      parallelism: 1
+      backoffLimit: 5
+      #podFailurePolicy:
+        #rules:
+        #- action: FailJob
+          #onExitCodes:
+            #operator: In # one of: In, NotIn
+            #values: [42]
+        #- action: Ignore # one of: Ignore, FailJob, Count
+          #onPodConditions:
+          #- status: "True"
+            #type: DisruptionTarget
+      #ttlSecondsAfterFinished: 36000
+      template:
+        metadata:
+          namespace: beta
+        spec:
+          serviceAccountName: zero-perm
+          terminationGracePeriodSeconds: 9
+          containers:
+          - name: dummy-cronjob-container
+            image: alpine:3.20
+            command:
+            - /bin/sh
+            - -c
+            - date; echo Alpine job tim20 sleep4; sleep 4; echo after sleep 4; exit 1
+            resources:
+              requests:
+                cpu: "4m"
+                memory: "45Mi"
+          restartPolicy: OnFailure

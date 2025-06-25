@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  namespace: beta
+  name: dummy-cronjob
+spec:
+  schedule: "*/20 * * * *"
+  concurrencyPolicy: Replace
+  startingDeadlineSeconds: 45
+  suspend: false
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    metadata:
+      namespace: beta
+    spec:
+      activeDeadlineSeconds: 44
+      completions: 1
+      parallelism: 1
+      backoffLimit: 4
+      #podFailurePolicy:
+        #rules:
+        #- action: FailJob
+          #onExitCodes:
+            #operator: In # one of: In, NotIn
+            #values: [42]
+        #- action: Ignore # one of: Ignore, FailJob, Count
+          #onPodConditions:
+          #- status: "True"
+            #type: DisruptionTarget
+      #ttlSecondsAfterFinished: 36000
+      template:
+        metadata:
+          namespace: beta
+        spec:
+          serviceAccountName: zero-perm
+          terminationGracePeriodSeconds: 9
+          containers:
+          - name: dummy-cronjob-container
+            image: busybox:1.28
+            command:
+            - /bin/sh
+            - -c
+            - date; echo OnFailure test and only 1 success count
+            - exit 1
+            resources:
+              requests:
+                cpu: "4m"
+                memory: "55Mi"
+          restartPolicy: OnFailure

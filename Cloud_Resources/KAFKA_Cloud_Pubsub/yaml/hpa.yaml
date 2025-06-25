@@ -9,5 +9,5 @@ spec:
     kind: Deployment
     name: pubsub-caller
   minReplicas: 1
-  maxReplicas: 13
+  maxReplicas: 88
   targetCPUUtilizationPercentage: 80

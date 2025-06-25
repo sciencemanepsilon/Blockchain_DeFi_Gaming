@@ -14,13 +14,17 @@ spec:
         POD_LABEL: pubsub-caller-pod-label
       namespace: prod
     spec:
+      terminationGracePeriodSeconds: 54
       serviceAccountName: pubsub-publisher
       containers:
       - name: pubsub-caller-container
-        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/cloud-resources:PubSubCaller-Beta1
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/cloud-resources:PubSubCaller-BatchTimeoutMaxTime
         ports:
         - containerPort: 8080
         resources:
           requests:
             cpu: "26m"
             memory: "70Mi"
+        envFrom:
+        - configMapRef:
+            name: prod-config

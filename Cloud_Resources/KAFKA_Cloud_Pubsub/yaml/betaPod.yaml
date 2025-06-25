@@ -17,7 +17,7 @@ spec:
       serviceAccountName: beta-pubsub-publisher
       containers:
       - name: pubsub-caller-container
-        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/cloud-resources:PubSubCaller-Batch-Timeout8
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/cloud-resources:PubSubCaller-BatchTimeoutMaxTime
         ports:
         - containerPort: 8080
         resources:

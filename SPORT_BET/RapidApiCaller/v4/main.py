@@ -12,17 +12,15 @@ last_request_time = time.time()
 route = '/SportRpsLimiter/prod'
 routeCache = '/GetCache/prod'
 pfx = os.environ['DB_COLL_PREFIX']
-radidApiKey = os.environ['RAPID_API_KEY']
-rapidHost = os.environ['X_RAPID_API_HOST']
 minimumTargetURl = os.environ['RAPID_API_MIN_URL_PATH']
 rateLim = float(os.environ['RAPID_API_RPS_LIMIT'])
 allowed_oris = os.environ['ALLOWED_ORIGINS'].split("||")
 cacheSeconds = int(os.environ['RAPID_API_LEAGUES_CACHE_SECONDS'])
 
-sess = httpx.AsyncClient(
-    timeout=4,
-    headers={"x-rapidapi-key":radidApiKey, "x-rapidapi-host":rapidHost}
-)
+sess = httpx.AsyncClient(timeout=4, headers={
+    "x-rapidapi-key":os.environ['RAPID_API_KEY'],
+    "x-rapidapi-host":os.environ['X_RAPID_API_HOST']
+})
 cache = TTLCache(75, cacheSeconds)
 
 corsKwargs = {
@@ -37,13 +35,13 @@ if pfx == "":
     corsKwargs['allow_origins'] = allowed_oris
     corsKwargs['allow_origin_regex'] = allowed_oris[-1]
 
-preUrl = f"https://{rapidHost}/events/search"
+preUrl = f"https://{os.environ['X_RAPID_API_HOST']}/events/search"
 cacheUrl = preUrl + "?league_id={}&status=notstarted&date_start={}&date_end={}"
 
 app = FastAPI()
 app.add_middleware(CORSMiddleware, **corsKwargs)
 
-print(f"env, rate {rateLim} cacheTTL {cacheSeconds} host {rapidHost}")
+print(f"env, rate {rateLim} cacheTTL {cacheSeconds}")
 print(f"route {route} preUrl {preUrl} allowOri {allowed_oris} cacheUrl {cacheUrl}")
 
 cacheArray = (
@@ -129,19 +127,24 @@ async def thisHealthCheck():
 
 @app.get(routeCache)
 async def cacheSetter():
+    global last_request_time
     print(f"START cacheSetter: cacheSize {cache.currsize} len {len(cache)}")
-
     if len(cache) > 0:
         print("cache exists, End")
         return dict(cache)
-    ii = 0
+
     dateNow = date.today().isoformat()
     dateEnd = date.today() + timedelta(days=28)
     dateEnd = dateEnd.isoformat()
-    
-    await asyncio.gather(*[
-        makeReq(cacheUrl.format(cacheArray[ii][1], dateNow, dateEnd), ii) for ii in range(lenCacheTuple)
-    ])
+    async with lock:
+        elapsed_time = time.time() - last_request_time
+        if elapsed_time < rateLim:
+            print(f"cache mutex is avtice, last req: {elapsed_time}")
+            await asyncio.sleep(rateLim)
+        await asyncio.gather(*[
+            makeReq(cacheUrl.format(cacheArray[ii][1], dateNow, dateEnd), ii) for ii in range(lenCacheTuple)
+        ])
+        last_request_time = time.time()
     print(f"cache built: len {len(cache)} size {cache.currsize} keys {cache.keys()}, End")
     return dict(cache)
 
@@ -149,30 +152,23 @@ async def cacheSetter():
 
 
 async def makeReq(finalUrl, off):
-    global last_request_time
+    await asyncio.sleep(off * rateLim)
     lid, lnum = cacheArray[off][0], cacheArray[off][1]
-    async with lock:
-        elapsed_time = time.time() - last_request_time
-        if elapsed_time < rateLim:
-            print(f"cache mutex {off} is avtice, last req: {elapsed_time}")
-            await asyncio.sleep(rateLim)
-        last_request_time = time.time()
-
-        try: res = await sess.post(finalUrl)
-        except Exception as e:
-            print(f"rapid api req failed: {e}, setting isGames=False")
-            cache[lid] = {'leagueId':lnum, 'isGames':False}
-            return 0
-        
-        if res.status_code != 200:
-            print(f"error: rapid.res.status {res.status_code}, set bool false")
-            cache[lid] = {'leagueId':lnum, 'isGames':False}
-            return 0
-        
-        isGam = True
-        if not res.json()['data']: isGam = False
-        cache[lid] = {'leagueId':lnum, 'isGames':isGam}
-        print(f"ii {off} lnum {lnum} {isGam} done")
+    try: res = await sess.post(finalUrl)
+    except Exception as e:
+        print(f"rapid api req failed: {e}, setting isGames=False")
+        cache[lid] = {'leagueId':lnum, 'isGames':False}
+        return 0
+    
+    if res.status_code != 200:
+        print(f"error: rapid.res.status {res.status_code}, set bool false")
+        cache[lid] = {'leagueId':lnum, 'isGames':False}
+        return 0
+    
+    isGam = True
+    if not res.json()['data']: isGam = False
+    cache[lid] = {'leagueId':lnum, 'isGames':isGam}
+    print(f"league {off} {isGam}")
     return 0
 
 

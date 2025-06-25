@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  namespace: beta
+  name: sport-cache-setter-cronjob
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Replace
+  startingDeadlineSeconds: 60
+  suspend: false
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    metadata:
+      namespace: beta
+    spec:
+      activeDeadlineSeconds: 44
+      completions: 1
+      parallelism: 1
+      backoffLimit: 2
+      podFailurePolicy:
+        rules:
+        - action: FailJob
+          onExitCodes:
+            operator: In # one of: In, NotIn
+            values: [42]
+        - action: Ignore # one of: Ignore, FailJob, Count
+          onPodConditions:
+          - status: someVal
+            type: DisruptionTarget
+          - type: bfg
+            status: val
+          - status: '12'
+            type: gg
+      ttlSecondsAfterFinished: 36000
+      template:
+        metadata:
+          namespace: beta
+        spec:
+          serviceAccountName: zero-perm
+          terminationGracePeriodSeconds: 24
+          containers:
+          - name: sport-cache-set-cronjob-container
+            image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/sportsbetapi:SetCacheCronJob1
+            resources:
+              requests:
+                cpu: "4m"
+                memory: "55Mi"
+          restartPolicy: OnFailure
