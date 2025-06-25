@@ -17,7 +17,7 @@ spec:
       serviceAccountName: iam-fire-w-auth-w-idtoken
       containers:
       - name: login-container
-        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/reg-login:Login-beta3
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/reg-login:Login-NoSessionWrite-FCM
         ports:
         - containerPort: 8080
         resources:
