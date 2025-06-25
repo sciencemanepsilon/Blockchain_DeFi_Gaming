@@ -60,7 +60,12 @@ class FireDB {
                 DocumentSnapshot ds = await tx.GetSnapshotAsync(
                     db.Collection($"{MyEnv.pfx}affiliates").Document(uid));
                 if (!ds.Exists) return new AffiDoc(-9.2, 0, 0.2, "affiliate.uid not exist", 0);
-                return ds.ConvertTo<AffiDoc>();
+                return new AffiDoc(
+                    ds.GetValue<double>("TotalEarned"),
+                    ds.GetValue<int>("TotalReferents"),
+                    ds.GetValue<double>("Unclaimed"),
+                    ds.GetValue<string>("JoinedAt"), ds.GetValue<int>("RevenuePercent")
+                );
             });
         } catch (Exception ex) {
             Console.WriteLine("tx failed: {0}", ex.Message);
@@ -73,16 +78,23 @@ class FireDB {
         return doc;
     }
 
-    public record AffiDoc(
-        double TotalEarned, int TotalReferents,
-        double Unclaimed, string JoinedAt, int RevenuePercent
-    );
+    public class AffiDoc {
+        public double TotalEarned {get;}
+        public int TotalReferents {get;}
+        public double Unclaimed {get;}
+        public string JoinedAt {get;}
+        public int RevenuePercent {get;}
+        public AffiDoc(double te, int TotRef, double Unclm, string ja, int RevPercent) {
+            TotalEarned=te; TotalReferents=TotRef; Unclaimed=Unclm; JoinedAt=ja; RevenuePercent=RevPercent;
+        }
+    }
 }
 
-public class AffiData<T> {
+public class AffiData {
     public string error {get;}
     public bool ViewMore {get;}
-    public T LastValue {get;}
+    public double? LastValue1 {get;}
+    public string LastValue2 {get;}
     public int nRefs {get;}
     public double share {get;}
     public double EarnedTotal {get;}
@@ -91,8 +103,8 @@ public class AffiData<T> {
     public string JoinedAt {get;}
     public int RevenuePercent {get;}
     public AffiData(string er, int nr, double sh,
-        double et, double un, Referent[] rf, string jo, int rp, bool vm, T of) {
+        double et, double un, Referent[] rf, string jo, int rp, bool vm, double? lv1, string lv2) {
         error=er; nRefs=nr; share=sh;
         EarnedTotal=et; unclaimed=un; referents=rf;
-        JoinedAt=jo; RevenuePercent=rp; ViewMore=vm; LastValue=of;
+        JoinedAt=jo; RevenuePercent=rp; ViewMore=vm; LastValue1=lv1; LastValue2=lv2;
 }}

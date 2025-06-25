@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: beta
+  name: affiliate-api
+spec:
+  selector:
+    matchLabels:
+      SVC_LABEL: affiliate-api-svc-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        SVC_LABEL: affiliate-api-svc-label
+      namespace: beta
+    spec:
+      serviceAccountName: beta-fire-w
+      containers:
+      - name: affiliate-api-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/affiliate:RefTxPagiReferentsOrByEarnedRollbackClaim
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "1m"
+            memory: "70Mi"
+        envFrom:
+          - configMapRef:
+              name: beta-config

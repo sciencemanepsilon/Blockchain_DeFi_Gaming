@@ -5,9 +5,10 @@ from google.cloud import pubsub_v1
 from firebase_admin import initialize_app, firestore
 # Listening to UPDATE_AFFILIATE_EARN_SPORT_BET_TOPIC_PATH triggered by SportBetApi
 
-comm = 0.05
+
 pretty = "Sport Bet"
 pfx = environ['DB_COLL_PREFIX']
+comm = float(environ['SPORT_BET_COMM'])
 RevenueFactor = int(environ['REVENUE_PERCENT'])/100
 project_id = environ['GOOGLE_CLOUD_PROJECT']
 subscription_id = environ['SPORT_BET_TO_AFFILIATE_EARNINGS_SUB_ID']
