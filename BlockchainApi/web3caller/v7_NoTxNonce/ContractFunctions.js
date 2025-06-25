@@ -25,18 +25,32 @@ async function getCurrentGasPrice() {
     }
 }
 
+async function EstimateGas(funcName, args, res) {
+    try {
+        let gasEstimate = await contract[funcName].estimateGas(...args);
+        gasEstimate = Math.floor(Number(gasEstimate) * 1.5);
+        console.log("contract.estimateGas: ", gasEstimate);
+        return gasEstimate;
+    } catch (error) {
+        console.log('contract.estimateGas Error:', error.message);
+        console.log("End");
+        return res.status(281).send({ error: "transaction failed", errObject: error });
+}}
+
 
 
 async function handleTransaction(funcName, args, res) {
     let txHash = "";
     console.log("args", args);
+    const gasEstimate = await EstimateGas(funcName, args, res);
     const { maxFeePerGas,  maxPriorityFeePerGas} = await getCurrentGasPrice();
     console.log("fees: ", {maxFeePerGas, maxPriorityFeePerGas});
     try {
         const tx = await contract[funcName](...args, {
             maxFeePerGas: maxFeePerGas *BigInt(2),
             maxPriorityFeePerGas: maxPriorityFeePerGas,
-            gasLimit: BigInt(Number("1000000"))
+            gasLimit: BigInt(gasEstimate)
+            //gasLimit: BigInt(Number("1000000"))
         });
         console.time("transactionConfirm");
         const receipt = await tx.wait();
