@@ -43,6 +43,21 @@ spec:
     backendRefs:
     - name: settings-transhistory-svc
       port: 9015
+  # SPORT SQL-CALLER
+  - matches:
+    - path:
+        value: /beta/SportsApi/tickets
+        type: Exact
+    backendRefs:
+    - name: sport-sql-caller-svc
+      port: 9019
+  - matches:
+    - path:
+        value: /beta/SportsApi/tickets/getById/
+        type: PathPrefix
+    backendRefs:
+    - name: sport-sql-caller-svc
+      port: 9019
   - matches:
     - path:
         value: /SportsBet/createTicketValidate/beta/
@@ -67,6 +82,13 @@ spec:
   - matches:
     - path:
         value: /SportRpsLimiter/beta
+        type: PathPrefix
+    backendRefs:
+    - name: rapid-api-caller-svc
+      port: 89
+  - matches:
+    - path:
+        value: /GetCache/beta
         type: PathPrefix
     backendRefs:
     - name: rapid-api-caller-svc

@@ -17,7 +17,7 @@ spec:
       serviceAccountName: zero-perm
       containers:
       - name: sport-bets-listener-container
-        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/sportsbet-listner:SportsBet-caller-update
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/sportsbet-listner:SportsBet-remove-mysql-caller
         ports:
         - containerPort: 3001
         resources:

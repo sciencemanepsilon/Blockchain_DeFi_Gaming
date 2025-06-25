@@ -14,10 +14,10 @@ spec:
         POD_LABEL: sport-bets-api-pod-label
       namespace: prod
     spec:
-      serviceAccountName: fire-w
+      serviceAccountName: zero-perm
       containers:
       - name: sport-bets-api-container
-        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/sportsbetapi:SportsBetApi-postponed-number
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/sportsbetapi:SportsBetApi-call-util-update
         ports:
         - containerPort: 8080
         resources:
@@ -25,6 +25,26 @@ spec:
             cpu: "29m"
             memory: "120Mi"
         env:
+        - name: AFFILIATE_BATCH_TRESHOLD
+          valueFrom:
+            configMapKeyRef:
+              name: prod-config
+              key: AFFILIATE_BATCH_TRESHOLD
+        - name: AFFILIATE_BATCH_SIZE
+          valueFrom:
+            configMapKeyRef:
+              name: prod-config
+              key: AFFILIATE_BATCH_SIZE
+        - name: UPDATE_AFFILIATE_EARN_SPORT_BET_TOPIC_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: prod-config
+              key: UPDATE_AFFILIATE_EARN_SPORT_BET_TOPIC_PATH
+        - name: PUBSUB_CALLER_SVC_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: prod-config
+              key: PUBSUB_CALLER_SVC_NAME
         - name: REDIS_PORT
           valueFrom:
             secretKeyRef:

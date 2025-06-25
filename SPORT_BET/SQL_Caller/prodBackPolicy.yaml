@@ -1,7 +1,7 @@
 apiVersion: networking.gke.io/v1
 kind: GCPBackendPolicy
 metadata:
-  name: sport-bet-api-backendpolicy
+  name: sport-bet-sql-backendpolicy
   namespace: prod
 spec:
   default:

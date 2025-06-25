@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: prod
+  name: sport-sql-caller
+spec:
+  selector:
+    matchLabels:
+      POD_LABEL: sport-sql-caller-pod-label
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        POD_LABEL: sport-sql-caller-pod-label
+      namespace: prod
+    spec:
+      serviceAccountName: zero-perm
+      containers:
+      - name: sport-sql-caller-container
+        image: asia-south1-docker.pkg.dev/weje-2023/gke-weje-images-india/sportsapi:SportsApi-status-update
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: "20m"
+            memory: "75Mi"
+        env:
+        - name: ENV_MODE
+          valueFrom:
+            secretKeyRef:
+              name: prod-poker-secrets
+              key: ENV_MODE
+        envFrom:
+          - secretRef:
+              name: prod-secrets
